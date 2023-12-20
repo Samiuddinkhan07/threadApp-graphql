@@ -15,9 +15,9 @@ model User{
   id String @id @default(uuid())
   firstName String @map("first_name")
   lastName String @map("last_name")
-  profileImgUrl String @map("profile_image_url")
   email String @unique
-  password String
+  password String @map("passoword")
+  profileImgUrl String? @map("profile_img_url")
   salt String
 
   @@map("users")

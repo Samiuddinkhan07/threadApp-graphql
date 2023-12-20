@@ -2,6 +2,7 @@ import express from "express";
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
 import bodyParser from "body-parser";
+import { prismaClient } from "./lib/db.js";
 
 async function setupServer() {
     const app = express();
@@ -17,14 +18,33 @@ async function setupServer() {
                 hello:String
                 say(name:String):String
             }
+
+            type Mutation{
+                createUser(email:String!,password:String!,firstName:String!,lastName:String!):Boolean
+            }
         `,//schema
         resolvers: {
             Query:{
                 hello:() => `Hey there i am GRPQL server`,
-                say:(_,{name},{name:String}) => `Hey there ${name}`
-            }
-        }
-    });
+                say:(_,{name},{name:String}) => `Hey there ${name}`,
+            },
+            Mutation:{
+               createUser:async (_,{firstName,lastName,email,password}) =>{
+                await prismaClient.user.create({
+                    data:{
+                        email,
+                        firstName,
+                        lastName,
+                        password,
+                        salt:'random_salt'
+                    },
+                })
+
+                return true;
+               }
+
+             }
+        }});
 
     //Start the GQL server
 
